@@ -1,0 +1,88 @@
+server:
+  port: 9902
+spring:
+  application:
+    name: storage-product
+  # 服务链路追踪
+  zipkin:
+    base-url: http://192.168.50.80:9411
+  boot:
+    admin:
+      client:
+        url: http://192.168.50.80:8889
+  rabbitmq:
+    host: 192.168.50.75
+    port: 5672
+    username: admin
+    password: 123456
+  cloud:
+    bus:
+      enabled: true
+    trace: 
+      enabled: true # 开启消息跟踪         
+  # 配置数据库信息
+  datasource:
+    # 数据源配置
+    username: postgres
+    password: 123456
+    url: jdbc:postgresql://192.168.50.75:5432/zegobirdWMS_Product?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 10
+      # 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），缺省:10分钟
+      idle-timeout: 600000
+      # 连接池中允许的最大连接数。缺省值：10
+      maximum-pool-size: 10
+      auto-commit: true
+      pool-name: MyHikariCP
+      # 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒
+      max-lifetime: 1800000
+      # 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 缺省:30秒
+      connection-timeout: 30000
+      connection-test-query: select 1
+  redis:
+    url: redis://192.168.50.75:6379
+    database: 1
+eureka:
+  instance:
+    ip-address: 192.168.50.75
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${eureka.instance.ip-address}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.50.75:8080/eureka/,http://192.168.50.79:8081/eureka/
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+mybatis-plus:
+# spring boot集成mybatis的方式打印sql
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+security:
+  oauth2:
+    resource:
+      id: storage-product
+      user-info-uri: http://192.168.50.75:8886/zegooauth/api/member
+      prefer-token-info: false
+swagger:
+  auth:
+    server: http://192.168.50.75:8886/zegooauth/oauth/token
+apiurl:
+  queryCategory: https://devtest.zegobird.com:11111/apiseller/api/queryCategory
+  updateStateUrl: http://192.168.50.58:5005/api/ProductInfo/UpdateProductState
+
+zegobird:
+  signature:
+    wmskey: WMSKEY
+    omskey: OMSKEY
+  product:
+    pushingProductCron: ${ZEGOBIRD.PRODUCT.PUSHINGRESULTCRON:0 0 0/1 * * ?}

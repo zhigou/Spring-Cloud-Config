@@ -1,0 +1,35 @@
+spring:
+  # 消息总线相关配置
+  rabbitmq:
+    host: 192.168.50.83
+    port: 5672
+    username: guest
+    password: guest
+  cloud:
+    bus:
+      enabled: true
+    trace: 
+      enabled: true # 开启消息跟踪 
+  application:
+    name: adminserver
+  zipkin:
+    base-url: http://192.168.50.83:9411
+server:
+  port: 8889
+eureka:
+  instance:
+    ip-address: 192.168.50.83
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${eureka.instance.ip-address}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.50.83:8080/eureka/,http://192.168.50.61:8081/eureka/
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        # 注意：此处在视频里是 include: ["health", "info"] 但已无效了，请修改
+        include: "*"

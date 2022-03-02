@@ -1,0 +1,93 @@
+profiles: node1
+spring:
+  application:
+    name: eureka-server
+  zipkin:
+    base-url: http://${eureka.instance.ip-address}:9411
+  boot:
+    admin:
+      client:
+        url: http://${eureka.instance.ip-address}:8889
+server:
+  port: 8080
+eureka:
+  server:
+    enable-self-preservation: false  # 开发环境关掉保护机制,快速发现已经挂掉的服务，生产环境需要设置为true提升服务稳定性
+  instance:
+    hostname: storage.com
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: false
+    service-url:
+      defaultZone: http://192.168.50.83:8081/eureka/
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+---
+profiles: node2
+spring:
+  application:
+    name: eureka-server
+  zipkin:
+    base-url: http://${eureka.instance.ip-address}:9411
+  boot:
+    admin:
+      client:
+        url: http://${eureka.instance.ip-address}:8889
+server:
+  port: 8081
+eureka:
+  server:
+    enable-self-preservation: false  # 开发环境关掉保护机制,快速发现已经挂掉的服务，生产环境需要设置为true提升服务稳定性
+  instance:
+    hostname: storage.com
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: false
+    service-url:
+      defaultZone: http://192.168.50.83:8080/eureka/
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+---
+profiles: dev
+server:
+  port: 8080
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+spring:
+  application:
+    name: eureka-server
+  zipkin:
+    base-url: http://localhost:9411
+  boot:
+    admin:
+      client:
+        url: http://localhost:8889
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info

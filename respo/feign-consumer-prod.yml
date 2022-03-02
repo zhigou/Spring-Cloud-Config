@@ -1,0 +1,40 @@
+server:
+  port: 8885
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.50.83:8080/eureka/,http://192.168.50.83:8081/eureka/
+  instance:
+    ip-address: 192.168.50.83
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${eureka.instance.ip-address}:${server.port}
+spring:
+  application:
+    name: feign-consumer
+  zipkin:
+    base-url: http://${eureka.instance.ip-address}:9411
+  boot:
+    admin:
+      client:
+        url: http://${eureka.instance.ip-address}:8889    
+  rabbitmq:
+    host: 192.168.50.83
+    port: 5672
+    username: guest
+    password: guest
+  cloud:
+    bus:
+      enabled: true
+    trace: 
+      enabled: true # 开启消息跟踪 
+feign:
+  hystrix:
+    enabled: true
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"

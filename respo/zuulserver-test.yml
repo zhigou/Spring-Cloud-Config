@@ -1,0 +1,93 @@
+server:
+  port: 8886
+eureka:
+  instance:
+    ip-address: 192.168.50.75
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${eureka.instance.ip-address}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.50.75:8080/eureka/,http://192.168.50.79:8081/eureka/
+
+spring:
+  application:
+    name: zuulserver
+  # 服务链路追踪
+  zipkin:
+    base-url: http://192.168.50.80:9411
+  boot:
+    admin:
+      client:
+        url: http://192.168.50.80:8889
+  # 消息总线相关配置
+  rabbitmq:
+    host: 192.168.50.75
+    port: 5672
+    username: admin
+    password: 123456
+  cloud:
+    bus:
+      enabled: true
+    trace: 
+      enabled: true # 开启消息跟踪            
+zuul:
+  routes:
+    oauth2-server:
+      path: /zegooauth/**
+      serviceId: oauth2-server
+      sensitiveHeaders: "*"
+    storage-baseinfo:
+      path: /baseinfo/**
+      serviceId: storage-baseinfo
+      sensitiveHeaders: "*"
+    storage-product:
+      path: /product/**
+      serviceId: storage-product
+      sensitiveHeaders: "*"
+    storage-warehouse:
+      path: /warehouse/**
+      serviceId:  warehouseService
+      sensitiveHeaders: "*"
+    file-service:
+      path: /fileservice/**
+      serviceId:  FileInfoService
+      sensitiveHeaders: "*"
+  retryable: false
+  ignored-services: "*"
+  host:
+    socket-timeout-millis: 60000
+    connect-timeout-millis: 60000
+
+
+# spring security oauth2
+security:
+  oauth2:
+    client:
+      access-token-uri: http://192.168.50.75:${server.port}/zegooauth/oauth/token
+      user-authorization-uri: http://192.168.50.75:${server.port}/zegooauth/oauth/authorize
+      client-id: clientid
+    resource:
+      user-info-uri:  http://192.168.50.75:${server.port}/zegooauth/api/member
+      prefer-token-info: false
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+#hystrixTimeout要大于ribbonTimeout((ribbonReadTimeout + ribbonConnectTimeout) * (maxAutoRetries + 1) * (maxAutoRetriesNextServer + 1);) 
+hystrix:
+  command:
+    default:
+      execution:
+        timeout: #配置命令的执行，是否会超时
+          enabled: true
+        isolation: #命令的执行超时时间  超时将执行回退
+          thread:
+            timeoutInMilliseconds: 900000
+ribbon:
+  ReadTimeout: 90000
+  ConnectTimeout: 90000

@@ -1,0 +1,17 @@
+server:
+  port: 3355
+spring:
+  application:
+    name: config-client
+eureka:
+  client:
+    register-with-eureka: true #默认是ture
+    fetch-registry: true # 默认是true
+    service-url:
+      defaultZone: http://eureka01.com:7001/eureka/
+# 暴露监控断点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

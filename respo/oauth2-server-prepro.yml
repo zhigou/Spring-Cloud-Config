@@ -1,0 +1,118 @@
+server:
+  port: 7006
+spring:
+  application:
+    name: oauth2-server
+  # 服务链路追踪
+  zipkin:
+    base-url: ${ZIPKIN.URL:http://192.168.1.173:9411}
+  boot:
+    admin:
+      client:
+        url: ${ADMIN.URL:http://192.168.1.173:8889
+  rabbitmq:
+    host: ${RABBITMQ.HOST:192.168.1.172}
+    port: ${RABBITMQ.PORT:5677}
+    username: ${RABBITMQ.USERNAME:guest}
+    password: ${RABBITMQ.PASSWORD:guest}
+  cloud:
+    bus:
+      enabled: true
+    trace: 
+      enabled: true # 开启消息跟踪     
+ # 配置数据库信息
+  datasource:
+    # 数据源配置
+    username: postgres
+    password: 123456
+    url: jdbc:postgresql://192.168.1.172:5432/Oauth?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    jdbc-url: jdbc:postgresql://192.168.1.172:5432/Oauth?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 10
+      # 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），缺省:10分钟
+      idle-timeout: 600000
+      # 连接池中允许的最大连接数。缺省值：10
+      maximum-pool-size: 10
+      auto-commit: true
+      pool-name: MyHikariCP
+      # 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒
+      max-lifetime: 1800000
+      # 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 缺省:30秒
+      connection-timeout: 30000
+      connection-test-query: select 1
+  #thymeleaf
+  thymeleaf:
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+    prefix: classpath:/templates/
+  redis:
+    database: ${REDIS.DATABASE:0}
+    host: ${REDIS.HOST:192.168.1.172}
+    port: ${REDIS.PORT:6379}
+    password: ${REDIS.PASSWORD:123456}
+eureka:
+  instance:
+    ip-address: 192.168.1.174
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${eureka.instance.ip-address}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: ${DEFAULTZONE:http://192.168.1.172:8080/eureka/,http://192.168.1.173:8080/eureka/}
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+mybatis:
+  type-aliases-package: com.zegobird.oauth2center.domain
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    cache-enabled: true
+zegobird:
+  security:
+    browser:
+      loginPage: /login
+      loginType: REDIRECT
+default_password: 123456
+logging:
+  config: classpath:logback-spring.xml
+swagger:
+  auth:
+    server: http://192.168.1.172:8886/zegooauth/oauth/token
+
+security:
+  oauth2:
+    resource:
+      id: oauth2-server
+      user-info-uri: http://192.168.1.172:8886/zegooauth/api/member
+      prefer-token-info: false
+
+ribbon:
+  # 请求处理的超时时间
+  ReadTimeOut: 5000
+  # 请求连接的超时时间
+  ConnectTimeout: 2000
+  
+histrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 300000
+
+menu:
+  specItemkey:
+    - SystemManagement
+    - BasicData
+    - ProductManagement
+    - systemConfiguration

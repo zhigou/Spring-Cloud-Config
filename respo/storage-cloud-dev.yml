@@ -1,0 +1,151 @@
+server:
+  port: 9904
+spring:
+  application:
+    name: storage-cloud
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss"
+    time-zone: "GMT+8"
+  # 服务链路追踪
+  zipkin:
+    base-url: http://192.168.50.83:9411
+  boot:
+    admin:
+      client:
+        instance:
+          service-base-url: http://192.168.50.83:8889
+        url: http://192.168.50.83:8889
+  rabbitmq:
+    host: ${RABBIT.HOST:192.168.50.62}
+    port: ${RABBIT.PORT:5677}
+    username: guest
+    password: guest
+    publisher-confirms: true
+    publisher-returns: true
+    template:
+      retry:
+        enabled: true
+      mandatory: true
+    virtual-host: storage
+  mail:
+    host: smtp.ym.163.com
+    username: service@zegobird.com
+    password: zhigou801
+    port: 25
+
+
+  redis:
+    url: redis://192.168.50.83:6379
+    database: 0
+#  redis:
+#    password: abc@123
+#    lettuce:
+#      pool:
+#        max-idle: 16
+#        max-active: 32
+#        min-idle: 8
+#    sentinel:
+#      master: mymaster
+#      nodes: 39.108.221.63:26379,39.108.221.63:26380,39.108.221.63:26381
+  cloud:
+    bus:
+      enabled: true
+    trace:
+      enabled: true # 开启消息跟踪
+  # 配置数据库信息
+  datasource:
+    # 数据源配置
+    username: postgres
+    password: 123456
+    url: jdbc:postgresql://192.168.50.54:5432/zegobirdWMS_Storage_62?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 10
+      # 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），缺省:10分钟
+      idle-timeout: 600000
+      # 连接池中允许的最大连接数。缺省值：10
+      maximum-pool-size: 80
+      auto-commit: true
+      pool-name: MyHikariCP
+      # 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒
+      max-lifetime: 1800000
+      # 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 缺省:30秒
+      connection-timeout: 30000
+      connection-test-query: select 1
+  quartz:
+    #相关属性配置
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: quartzScheduler
+            instanceId: AUTO
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 10
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+eureka:
+  instance:
+    ip-address: 192.168.50.62
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${eureka.instance.ip-address}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.50.83:8080/eureka/,http://192.168.50.61:8081/eureka/
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+swagger:
+  auth:
+    server: http://192.168.50.61:8886/zegooauth/oauth/token
+
+mybatis-plus:
+  # spring boot集成mybatis的方式打印sql
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+security:
+  oauth2:
+    resource:
+      id: oauth2-server
+      user-info-uri: http://192.168.50.61:8886/zegooauth/api/member
+      prefer-token-info: false
+apiseller:
+  api:
+    queryStore: http://192.168.50.71:8888/apiseller/api/queryStroe
+
+zegobird:
+  stockchange:
+    cron: '0 */5 * * * ?'
+    enabled: false
+#    cron: '*/30 * * * * ?'
+#    pushStockToOmsCron: '0 */5 * * * ?'
+    pushStockToOmsCron: '0 */1 * * * ?'
+    pushStockToOmsEnabled: true
+    pushStockToOmsDelay: 15 # 分钟为单位
+    pushStockToOmsUrl: ${pushStockToOmsUrl:https://devtest.zegobird.com:11111/oms}/erp/synchronize/update/stock
+#    pushStockToOmsCron: '*/30 * * * * ?'
+    messagetimeout: 600 # 以秒为单位
+    msgSizeLimit: 500
+    omsMsgSizeLimit: 50
+    failCountToSendMail: 5
+  rabbitmq:
+    queue1: zegobird.storage.quene.mall_a
+    queue2: zegobird.storage.quene.mall_b
+    routingKey: zegobird.storage.info
+  redis:
+    stockHistoryRecordIdKey: stockHistoryRecordIdKey
+    stockmessage: stockpush.olderp.message
+    pushStockToOms: push:oms:productStock
+  mail: liuhuan@zegobird.com,feining@zegobird.com,yupeng@zegobird.com
+  signature:
+    wmskey: WMSKEY
+    omskey: OMSKEY
+  timeZone: "+8"
